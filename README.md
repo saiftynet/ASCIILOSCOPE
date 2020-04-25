@@ -9,10 +9,10 @@ Ihe display can be positioned and sized as needed. The Keyboard is monitored for
 
 Things to do: -
 
-* Manual scale and offset adjustment
-* Manual sample rate adjustment
-* Autoscaling is already implemented
-* Drift adjustment
+* Manual scale and offset adjustment (partly done in v0.02)
+* Manual sample rate adjustment      (done in v0.02)
+* Autoscaling is already implemented (in v0.02 can now be triggered any time)
+* Drift adjustment            
 * Multiple traces
 * Triggers and Storage modes
 
