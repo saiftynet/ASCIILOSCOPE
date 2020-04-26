@@ -9,7 +9,6 @@ binmode STDOUT, ":utf8";
 use Time::HiRes ("sleep");      # allow fractional sleeps
 use Term::ReadKey;              # allow reading from keyboard
 my $key;                        # 
-my $OrdKey;
 
 my $VERSION=0.03;
 
@@ -43,27 +42,27 @@ my %actions=(                  # for keyboard driven actions
    },
    67=>{  # increase sample rate by 10
 	   note=>"🠞 = Speed up",
-	   proc=>sub{$display{sampleRate}+=10;$OrdKey=0;},
+	   proc=>sub{$display{sampleRate}+=10;},
    },
    68=>{  # reduce sample rate by 10
 	   note=>"🠜 = Slow down",
-	   proc=>sub{$display{sampleRate}=$display{sampleRate}>10?$display{sampleRate}-10:10;$OrdKey=0;},
+	   proc=>sub{$display{sampleRate}=$display{sampleRate}>10?$display{sampleRate}-10:10;},
    },
    65=>{  # shift display up by 1
 	   note=>"🠉 = Shift up",
-	   proc=>sub{$display{yOffset}+=1;$OrdKey=0;},
+	   proc=>sub{$display{yOffset}+=1;},
    },
    66=>{ # shift display down by 1
 	   note=>"🠋 = Shift down",
-	   proc=>sub{$display{yOffset}-=1;$OrdKey=0;},
+	   proc=>sub{$display{yOffset}-=1;},
    },
    43=>{ # increase multiplier by 10%
 	   note=>"+ = Magnify",
-	   proc=>sub{$display{yMult}*=1.1;$OrdKey=0;},
+	   proc=>sub{$display{yMult}*=1.1;},
    },
    45=>{ # reduce multiplier by 10%
 	   note=>"- = Reduce",
-	   proc=>sub{$display{yMult}*=0.9;$OrdKey=0;},
+	   proc=>sub{$display{yMult}*=0.9;},
    },
    
 );
@@ -129,8 +128,8 @@ sub startScope{
     scatterPlot();                     # draw the trace
 	sleep 1/$display{sampleRate};      # pause
 	$key = ReadKey(-1);                # non-blocking read of keyboard
-	$OrdKey = ord($key) if $key;       # read key
-	if ($OrdKey){
+    if ($key) {
+	  my $OrdKey = ord($key);       # read key
 	  printAt( 1,$display{width}+$display{column}+2,"Key pressed = $OrdKey  ");
 	  # Keys actions are stored in %actions
 	  $actions{$OrdKey}{proc}->() if defined $actions{$OrdKey};
