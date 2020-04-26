@@ -16,3 +16,4 @@
 
 ### Version 0.01
 
+![Screenshot1](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/asciiloscope.gif)
