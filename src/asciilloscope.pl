@@ -1,6 +1,6 @@
 #!/usr/env/perl
 #                      ASCIILOSCOPE
-# A Terminal based real-time analog data visualistaion tool.
+# A Terminal based real-time analog data visualisation tool.
 
 use strict;use warnings;
 
@@ -8,12 +8,15 @@ use utf8;                       # allow utf characters in print
 binmode STDOUT, ":utf8";
 use Time::HiRes ("sleep");      # allow fractional sleeps
 use Term::ReadKey;              # allow reading from keyboard
-my $key;                        # 
+my $key;                      
 
-my $VERSION=0.03;
+my $VERSION=0.04;
 
 # display parameters stored in hash for future conversion into an
 # object orientated 
+
+my @list;
+
 my %display=(                  # display parameters
    borderStyle=>"double",      # border style
    height    =>14,             # vertical characters
@@ -21,7 +24,9 @@ my %display=(                  # display parameters
    row       =>2,              # vertical position (from top left)
    column    =>10,             # horizontal position
    sampleRate=>100,            # number of samples per second
-   symbol    =>"*",);              # plot symbol
+   dataWindow=>55,             # number of samples in one window
+   dataStore =>110,
+   symbol    =>"*",);          # plot symbol
 
 my %actions=(                  # for keyboard driven actions
    113=>{ # q exits
@@ -36,41 +41,52 @@ my %actions=(                  # for keyboard driven actions
 	   note=>"r = Resume",
 	   proc=>sub{$display{pause}=0},
    },
-   97=>{  # Auto levels based on the current contents of @list
+   97 =>{  # Auto levels based on the current contents of @list
 	   note=>"a = Auto levels",
 	   proc=>sub{autoLevels()},
    },
-   67=>{  # increase sample rate by 10
+   67 =>{  # increase sample rate by 10
 	   note=>"🠞 = Speed up",
 	   proc=>sub{$display{sampleRate}+=10;},
    },
-   68=>{  # reduce sample rate by 10
+   68 =>{  # reduce sample rate by 10
 	   note=>"🠜 = Slow down",
 	   proc=>sub{$display{sampleRate}=$display{sampleRate}>10?$display{sampleRate}-10:10;},
    },
-   65=>{  # shift display up by 1
+   65 =>{  # shift display up by 1
 	   note=>"🠉 = Shift up",
 	   proc=>sub{$display{yOffset}+=1;},
    },
-   66=>{ # shift display down by 1
+   66 =>{ # shift display down by 1
 	   note=>"🠋 = Shift down",
 	   proc=>sub{$display{yOffset}-=1;},
    },
-   43=>{ # increase multiplier by 10%
+   
+   42 =>{ # increase samples per full width
+	   note=>"* = Inc Window",
+	   proc=>sub{unshift @list,($list[0]) x 10;
+		         $display{xMult}=$display{width}/(scalar @list);},
+   },
+   47 =>{ # decrease samples per full width
+	   note=>"/ = Dec Window",
+	   proc=>sub{@list=@list[9..$#list];
+		         $display{xMult}=$display{width}/(scalar @list);},
+   },
+   43 =>{ # increase multiplier by 10%
 	   note=>"+ = Magnify",
 	   proc=>sub{$display{yMult}*=1.1;},
    },
-   45=>{ # reduce multiplier by 10%
+   45 =>{ # reduce multiplier by 10%
 	   note=>"- = Reduce",
 	   proc=>sub{$display{yMult}*=0.9;},
    },
    
+   
 );
 
 # example initial dataset...a sine wave preloaded to allow scaling -1 to 1
-# subsequent data can be autoscaled again as required.
-my @list=();                                 
-push @list,sin (3.14*$_/20) for (0..55); 
+# subsequent data can be autoscaled again as required.                             
+push @list,sin (3.14*$_/20) for (0..$display{dataWindow}); 
 my $next=@list;
 
 # Main routine
@@ -102,7 +118,7 @@ sub initialScreen{
     ' / _ \ \__ \| (_  | | | | | |_| (_) |\__ \| (_ | (_) || |_/| _| ',
     '/_/ \_\|___/ \__||___|___||___|\___/ |___/ \__| \___/ |_|  |___|'." v$VERSION",
     );
-}
+};
 
 # uses the data in the @list to autscale the waveform for display
 sub autoLevels{
@@ -114,7 +130,7 @@ sub autoLevels{
   $display{yMult}=($display{height}-2)/($max-$min);
   $display{yOffset}=-$min*$display{yMult}+1;
   $display{xMult}=$display{width}/(scalar @list);
-}
+};
 
 # The scope function
 sub startScope{
@@ -127,9 +143,9 @@ sub startScope{
     }
     scatterPlot();                     # draw the trace
 	sleep 1/$display{sampleRate};      # pause
-	$key = ReadKey(-1);                # non-blocking read of keyboard
-    if ($key) {
-	  my $OrdKey = ord($key);       # read key
+	$key = ReadKey(-1);                #
+	if ($key){
+	  my $OrdKey = ord($key);
 	  printAt( 1,$display{width}+$display{column}+2,"Key pressed = $OrdKey  ");
 	  # Keys actions are stored in %actions
 	  $actions{$OrdKey}{proc}->() if defined $actions{$OrdKey};
@@ -142,19 +158,20 @@ sub scatterPlot{
   my @plots=map { [int( $_*$display{xMult}) ,
 	  bound (int($display{yMult}*$list[$_] +$display{yOffset}-.5),0,$display{height}-1)] } (0..$#list);
   my @rows=(" "x$display{width})x$display{height};
-  $rows[$display{yOffset}]="-"x$display{width};
+  $rows[bound($display{yOffset},0,$display{height})]="-"x$display{width};
   foreach (@plots){
     substr ($rows[$$_[1]], $$_[0],1,$display{symbol});
   }
   printAt($display{row}+1,$display{column}+1,reverse @rows);
-}
+};
+
 # routine that prints multiline strings at specific points on the terminal window
 sub printAt{
 	my ($row,$column,@textRows)=@_;
 	my $blit="\033[?25l";
 	$blit.= "\033[".$row++.";".$column."H".$_ foreach (@textRows) ;
 	print $blit;
-}	
+};
 
 # sets the boundaries for a number assignment 
 sub bound{  
@@ -163,3 +180,6 @@ sub bound{
 	return $min if $number<$min;
 	return $number;	
 }
+
+
+
