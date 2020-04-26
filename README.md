@@ -15,4 +15,8 @@ Things to do: -
 * Drift adjustment            
 * Multiple traces
 * Triggers and Storage modes
+* Freeze frame
+* Export data to CSV and graphically to SVG
+* Data anaylsis
+
 
