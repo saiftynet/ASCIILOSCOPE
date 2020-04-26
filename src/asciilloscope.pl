@@ -1,19 +1,17 @@
-#!/usr/env perl
-# ASCIILOSCOPE
-# A Terminanl based real-time analog data visualistaion tool.
+#!/usr/env/perl
+#                      ASCIILOSCOPE
+# A Terminal based real-time analog data visualistaion tool.
 
 use strict;use warnings;
 
-use utf8;
+use utf8;                       # allow utf characters in print
 binmode STDOUT, ":utf8";
-
-use Time::HiRes ("sleep");
-
-use Term::ReadKey;
-my $key;
+use Time::HiRes ("sleep");      # allow fractional sleeps
+use Term::ReadKey;              # allow reading from keyboard
+my $key;                        # 
 my $OrdKey;
 
-my $VERSION=0.02;
+my $VERSION=0.03;
 
 # display parameters stored in hash for future conversion into an
 # object orientated 
@@ -27,35 +25,51 @@ my %display=(                  # display parameters
    symbol    =>"*",);              # plot symbol
 
 my %actions=(                  # for keyboard driven actions
-   113=>{
-	   note=>"q = exit",
-	   proc=>sub{ exit;},
+   113=>{ # q exits
+	   note=>"q = Exit",
+	   proc=>sub{ printAt($display{row}+$display{height}+9,0,"Goodbye!");exit;},
    },
-   97=>{
+   112=>{  # Freezes display (loop continues so keyboard is read)
+	   note=>"p = Freeze",
+	   proc=>sub{$display{pause}=1},
+   },
+   114=>{  # Resume
+	   note=>"r = Resume",
+	   proc=>sub{$display{pause}=0},
+   },
+   97=>{  # Auto levels based on the current contents of @list
 	   note=>"a = Auto levels",
 	   proc=>sub{autoLevels()},
    },
-   67=>{
+   67=>{  # increase sample rate by 10
 	   note=>"🠞 = Speed up",
 	   proc=>sub{$display{sampleRate}+=10;$OrdKey=0;},
    },
-   68=>{
+   68=>{  # reduce sample rate by 10
 	   note=>"🠜 = Slow down",
 	   proc=>sub{$display{sampleRate}=$display{sampleRate}>10?$display{sampleRate}-10:10;$OrdKey=0;},
    },
-   65=>{
-	   note=>"🠉 = Magnify",
+   65=>{  # shift display up by 1
+	   note=>"🠉 = Shift up",
+	   proc=>sub{$display{yOffset}+=1;$OrdKey=0;},
+   },
+   66=>{ # shift display down by 1
+	   note=>"🠋 = Shift down",
+	   proc=>sub{$display{yOffset}-=1;$OrdKey=0;},
+   },
+   43=>{ # increase multiplier by 10%
+	   note=>"+ = Magnify",
 	   proc=>sub{$display{yMult}*=1.1;$OrdKey=0;},
    },
-   66=>{
-	   note=>"🠋 = Reduce",
+   45=>{ # reduce multiplier by 10%
+	   note=>"- = Reduce",
 	   proc=>sub{$display{yMult}*=0.9;$OrdKey=0;},
    },
    
-
 );
 
-# example initial dataset...a sine wave preloaded to allow scaling
+# example initial dataset...a sine wave preloaded to allow scaling -1 to 1
+# subsequent data can be autoscaled again as required.
 my @list=();                                 
 push @list,sin (3.14*$_/20) for (0..55); 
 my $next=@list;
@@ -64,8 +78,6 @@ my $next=@list;
 initialScreen();   # draw screen
 autoLevels();      # auto adjust the scaling based on initial sample
 startScope();      # the loop that updates the scope's display
-
-print "\033[18;0H";#jump to 18,0 
 
 # draws the frame and other features outside the 
 sub initialScreen{           
@@ -103,38 +115,39 @@ sub autoLevels{
   $display{yMult}=($display{height}-2)/($max-$min);
   $display{yOffset}=-$min*$display{yMult}+1;
   $display{xMult}=$display{width}/(scalar @list);
-	
 }
 
 # The scope function
 sub startScope{
   ReadMode 'cbreak';
   while(1){
-	  shift @list;
+    unless ($display{pause}){
+      shift @list;
 	  push @list, sin (3.14*$next++/20); # the next data capture pushed into list
-	  scatterPlot();                     # draw the trace
 	  $next=0 if $next>200;              # limit the size of the trace
-	  sleep 1/$display{sampleRate};      # pause
-	  $key = ReadKey(-1);                # non-blocking read of keyboard
-	  $OrdKey = ord($key) if $key;       # read key
-	  if ($OrdKey){
-		printAt( 1,$display{width}+$display{column}+2,"Key pressed = $OrdKey  ");
-	    last if $OrdKey ==113 ;          # q is the quit key
-	                                     # other keys actions are stored in %actions
-	    $actions{$OrdKey}{proc}->() if defined $actions{$OrdKey};
-	  }
-	}  
-  };
+    }
+    scatterPlot();                     # draw the trace
+	sleep 1/$display{sampleRate};      # pause
+	$key = ReadKey(-1);                # non-blocking read of keyboard
+	$OrdKey = ord($key) if $key;       # read key
+	if ($OrdKey){
+	  printAt( 1,$display{width}+$display{column}+2,"Key pressed = $OrdKey  ");
+	  # Keys actions are stored in %actions
+	  $actions{$OrdKey}{proc}->() if defined $actions{$OrdKey};
+	}
+  }  
+};
 
 # generates plots from the list by scaling to fit into display area      
 sub scatterPlot{
   my @plots=map { [int( $_*$display{xMult}) ,
-	  bound (int($display{yMult}*$list[$_] +$display{yOffset}),0,$display{height}-1)] } (0..$#list);
+	  bound (int($display{yMult}*$list[$_] +$display{yOffset}-.5),0,$display{height}-1)] } (0..$#list);
   my @rows=(" "x$display{width})x$display{height};
+  $rows[$display{yOffset}]="-"x$display{width};
   foreach (@plots){
     substr ($rows[$$_[1]], $$_[0],1,$display{symbol});
   }
-  printAt($display{row}+2,$display{column}+1,reverse @rows);
+  printAt($display{row}+1,$display{column}+1,reverse @rows);
 }
 # routine that prints multiline strings at specific points on the terminal window
 sub printAt{
@@ -151,6 +164,3 @@ sub bound{
 	return $min if $number<$min;
 	return $number;	
 }
-
-
-
