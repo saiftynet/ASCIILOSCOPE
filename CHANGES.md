@@ -1,4 +1,4 @@
-### Version 0.03
+### Version 0.04
 - Sample Window (@list size) can be increased or decreased
 - Fix to OrdKey processing as advised by cybernetix
 
