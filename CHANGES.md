@@ -1,6 +1,6 @@
 ### Version 0.04
 - Sample Window (@list size) can be increased or decreased
-- Fix to OrdKey processing as advised by cybernetix
+- Fix to OrdKey processing as advised by cybernicus
 
 ![Screenshot1](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.04.jpg)
 
