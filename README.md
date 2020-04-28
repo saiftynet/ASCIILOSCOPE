@@ -12,10 +12,11 @@ Things to do: -
 * Manual scale and offset adjustment (partly done in v0.02)
 * Manual sample rate adjustment      (done in v0.02)
 * Autoscaling is already implemented (in v0.02 can now be triggered any time)
-* Drift adjustment            
-* Multiple traces
+* Drift adjustment
+* Colour 
+* Multiple independent traces 
 * Triggers and Storage modes
-* Freeze frame
+* Freeze frame 
 * Export data to CSV and graphically to SVG
 * Data anaylsis
 
