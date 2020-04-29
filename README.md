@@ -32,9 +32,24 @@ Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%tra
 * `source` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied.
 May be more reasonable to put in example triangle, sawtooth, squarewave. a future trace will be the internal "trigger". The main purpose of this function is to capture external data for plotting.
 
+### Options
+The display can be configured from the `$display` hash.
+```
+my %display=(                  # display parameters
+   showLogo   =>1,             # show logo or not
+   showMenu   =>1,             # show menu or not
+   enableColours=>1,           # enable colours
+   borderStyle=>"double",      # border style
+   height    =>14,             # vertical characters
+   width     =>50,             # horizontal characters
+   row       =>2,              # vertical position (from top left)
+   column    =>10,             # horizontal position
+   sampleRate=>100,            # number of samples per second
+   );
 
+```
 
-Things to do: -
+### Things to do: -
 
 * Manual scale and offset adjustment (done in v0.02)
 * Manual sample rate adjustment      (done in v0.02)
