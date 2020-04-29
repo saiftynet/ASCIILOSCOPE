@@ -10,12 +10,17 @@ use Time::HiRes ("sleep");      # allow fractional sleeps
 use Term::ReadKey;              # allow reading from keyboard
 my $key;                      
 
-my $VERSION=0.05;
+my $VERSION=0.06;
 
 # display parameters stored in hash for future conversion into an
 # object orientated module 
 
-my @list;   # the data window
+my %traces; # Parameters for multiple traces
+
+my %borders=(
+  simple=>{tl=>"+", t=>"-", tr=>"+", l=>"|", r=>"|", bl=>"+", b=>"-", br=>"+",},
+  double=>{tl=>"╔", t=>"═", tr=>"╗", l=>"║", r=>"║", bl=>"╚", b=>"═", br=>"╝",},
+);
 
 my %display=(                  # display parameters
    showLogo   =>1,             # show logo or not
@@ -30,9 +35,43 @@ my %display=(                  # display parameters
    dataWindow=>55,             # number of samples in one window
    dataStore =>110,
    symbol    =>"*",            # plot symbol
-   );        
+   );
+           
+%traces=(
+  trace1=>{
+	data           =>[(undef) x 55],
+	dataWindow     =>55,
+    internals=>{x=>1},
+    symbol   => "*",
+    source  => sub{
+		shift @{$traces{trace1}{data}} ;
+		$traces{trace1}{internals}{x}=0 if $traces{trace1}{internals}{x}>200;
+		push @{$traces{trace1}{data}},sin (3.14*$traces{trace1}{internals}{x}++/20)
+		},
+	
+  },
+  cos=>{
+	data           =>[(undef) x 55],
+	dataWindow     =>55,
+    internals=>{x=>1},
+    symbol   => "o",
+    source  => sub{
+		shift @{$traces{cos}{data}} ;
+		$traces{cos}{internals}{x}=0 if $traces{cos}{internals}{x}>200;
+		push @{$traces{cos}{data}},cos (3.14*$traces{cos}{internals}{x}++/20)
+		},
+	
+  },
+);
+my @traceNames=keys %traces;
+my $activeTrace=$traceNames[0];
 
 my %actions=(                  # for keyboard driven actions
+   9=>{ # tab makes next trace active
+	   note=>"Tab = next trace",
+	   proc=>sub{$activeTrace=pop @traceNames;
+		   unshift @traceNames,$activeTrace; }
+   },
    113=>{ # q exits
 	   note=>"q = Exit",
 	   proc=>sub{ printAt($display{row}+$display{height}+9,0,"Goodbye!");exit;},
@@ -59,91 +98,100 @@ my %actions=(                  # for keyboard driven actions
    },
    65 =>{  # shift display up by 1
 	   note=>"🠉 = Shift up",
-	   proc=>sub{$display{yOffset}+=1;},
+	   proc=>sub{$traces{$activeTrace}{yOffset}+=1;},
    },
    66 =>{ # shift display down by 1
 	   note=>"🠋 = Shift down",
-	   proc=>sub{$display{yOffset}-=1;},
+	   proc=>sub{$traces{$activeTrace}{yOffset}-=1;},
    },   
-   42 =>{ # increase samples per full width
+   42 =>{ # increase samples per full width0..(@{$currentTrace{data}}
 	   note=>"* = Inc Window",
-	   proc=>sub{unshift @list,($list[0]) x 10;
-		         $display{xMult}=$display{width}/(scalar @list);},
+	   proc=>sub{unshift @{$traces{$activeTrace}{data}},($traces{$activeTrace}{data}[0]) x 10;
+		         $traces{$activeTrace}{xMult}=$display{width}/(scalar @{$traces{$activeTrace}{data}});},
    },
    47 =>{ # decrease samples per full width
 	   note=>"/ = Dec Window",
-	   proc=>sub{@list=@list[9..$#list] if @list>15;
-		         $display{xMult}=$display{width}/(scalar @list);},
+	   proc=>sub{@{$traces{$activeTrace}{data}}=@{$traces{$activeTrace}{data}}[9..@{$traces{$activeTrace}{data}}] if  @{$traces{$activeTrace}{data}}>15;
+		         $traces{$activeTrace}{xMult}=$display{width}/( @{$traces{$activeTrace}{data}});},
    },
    43 =>{ # increase multiplier by 10%
 	   note=>"+ = Magnify",
-	   proc=>sub{$display{yMult}*=1.1;},
+	   proc=>sub{$traces{$activeTrace}{yMult}*=1.1;},
    },
    45 =>{ # reduce multiplier by 10%
 	   note=>"- = Reduce",
-	   proc=>sub{$display{yMult}*=0.9;},
+	   proc=>sub{$traces{$activeTrace}{yMult}*=0.9;},
    },
 );
 
 # example initial dataset...a sine wave preloaded to allow scaling -1 to 1
-# subsequent data can be autoscaled again as required.                             
-push @list,sin (3.14*$_/20) for (0..$display{dataWindow}); 
-my $next=@list;
-
+# subsequent data can be autoscaled again as required.  
+foreach my $trace (keys %traces){
+  $traces{$trace}{source}->() for (0..$traces{$trace}{dataWindow}); 
+}
 # Main routine
 initialScreen();   # draw screen
-autoLevels();      # auto adjust the scaling based on initial sample
+foreach (keys %traces){
+	$activeTrace=$_;
+	autoLevels()
+	};      # auto adjust the scaling based on initial sample
 startScope();      # the loop that updates the scope's display
 
 # draws the frame and other features outside the 
 sub initialScreen{           
 	my @plotArea=();
-    my %borders=(
-        simple=>{tl=>"+", t=>"-", tr=>"+", l=>"|", r=>"|", bl=>"+", b=>"-", br=>"+",},
-        double=>{tl=>"╔", t=>"═", tr=>"╗", l=>"║", r=>"║", bl=>"╚", b=>"═", br=>"╝",},
-    );
+   
+    #  Borderstyle...display{borderStyle} chooses style
     my %border=%{$borders{$display{borderStyle}}};
-	foreach (0..$display{height}){
+	foreach (0..$display{height}-1){
 		$plotArea[$_]=$border{l}.(" "x$display{width}).$border{r};
 	}
-	unshift @plotArea,colour("blue","bold").$border{tl}.($border{t}x$display{width}).$border{tr};
-    push    @plotArea,$border{bl}.($border{b}x$display{width}).$border{br}.colour("reset");
+	unshift @plotArea,colour("blue bold").$border{tl}.($border{t}x$display{width}).$border{tr};
+	
+	my $bLine=join $border{b}x2, map {" $traces{$_}{symbol} $_ "} @traceNames;
+	$bLine=($border{b}x2).$bLine.($border{b}x($display{width}-2-length $bLine));
+    push    @plotArea,$border{bl}.$bLine.$border{br}.colour("reset");
     printAt($display{row},$display{column},@plotArea),;
 
-    printAt( 3,$display{width}+$display{column}+3,
+    # Print Menu...disable by setting $display{showMenu} to zero
+    printAt( 5,$display{width}+$display{column}+3,
         map{$actions{$_}{note} } sort { $a <=> $b } keys %actions) if $display{showMenu};;
     
+    # Print logo...disable by setting $display{showLogo} to zero
     printAt($display{row}+$display{height}+3,$display{column}-7<0?0:$display{column}-7,
-    colour("yellow","bold").
+    colour("yellow bold").
     '   _    ___   __  _______  _    ___   ___   __   ___   ___  ___',
     '  /_\  / __| / _||_ _|_ _|| |  / _ \ / __| / _| / _ \ |  _\| __|',
     ' / _ \ \__ \| (_  | | | | | |_| (_) |\__ \| (_ | (_) || |_/| _| ',
     '/_/ \_\|___/ \__||___|___||___|\___/ |___/ \__| \___/ |_|  |___|'." v$VERSION".
     colour("reset") 
     ) if $display{showLogo};
+    
+    
+		
+		
 };
 
 # uses the data in the @list to autscale the waveform for display
 sub autoLevels{
-  my $max=$list[0];my $min=$list[0];
-  foreach my $y (@list){
+  my $max=$traces{$activeTrace}{data}[0];my $min=$traces{$activeTrace}{data}[0];
+  foreach my $y (@{$traces{$activeTrace}{data}}){
     $max=$y if  $y>$max;
     $min=$y if  $y<$min;
   } 
-  $display{yMult}=($display{height}-2)/($max-$min);
-  $display{yOffset}=-$min*$display{yMult}+1;
-  $display{xMult}=$display{width}/(scalar @list);
+  $traces{$activeTrace}{yMult}=($display{height}-2)/($max-$min);
+  $traces{$activeTrace}{yOffset}=-$min*$traces{$activeTrace}{yMult}+1;
+  $traces{$activeTrace}{xMult}=$display{width}/(scalar @{$traces{$activeTrace}{data}});
 };
 
 # The scope function
 sub startScope{
   ReadMode 'cbreak';
   while(1){
-    unless ($display{pause}){
-      shift @list;
-	  push @list, sin (3.14*$next++/20); # the next data capture pushed into list
-	  $next=0 if $next>200;              # limit the size of $next...
-    }
+	unless ($display{pause}){  # unless pausing continue updatingftea
+		
+		$traces{$_}{source}->() foreach (keys %traces)
+	};
     scatterPlot();                     # draw the trace
 	sleep 1/$display{sampleRate};      # pause
 	$key = ReadKey(-1);                # -1 means non-blocking read
@@ -159,14 +207,23 @@ sub startScope{
 
 # generates plots from the list by scaling to fit into display area      
 sub scatterPlot{
-  my @plots=map { [int( $_*$display{xMult}) ,
-	  bound (int($display{yMult}*$list[$_] +$display{yOffset}-.5),0,$display{height}-1)] } (0..$#list);
   my @rows=(" "x$display{width})x$display{height};
-  $rows[bound($display{yOffset},0,$display{height})]="-"x$display{width};
-  foreach (@plots){
-    substr ($rows[$$_[1]], $$_[0],1,$display{symbol});
-  }
-  printAt($display{row}+1,$display{column}+1,reverse @rows);
+  foreach my $tr (keys %traces){
+	  my @plots2=map {$traces{$tr}{data}[$_]?
+			[int( $_*$traces{$tr}{xMult}) ,
+			bound (int($traces{$tr}{yMult}*$traces{$tr}{data}[$_] +$traces{$tr}{yOffset}-.5),
+				 0,$display{height}-1)]:()
+			 } (0..(@{$traces{$tr}{data}}-1));
+		
+		foreach (@plots2){
+		  substr ($rows[$$_[1]], $$_[0],1,$traces{$tr}{symbol});
+		}
+	}
+	my $zeroLine=bound($traces{$activeTrace}{yOffset},0,$display{height}-1);
+		  $rows[$zeroLine]=~s/ /-/g;
+		  $rows[$zeroLine]=colour("yellow bold").$rows[$zeroLine].colour("reset");
+   # reverse rows and print as screen counts zero as top 
+   printAt($display{row}+1,$display{column}+1,reverse @rows);
 };
 
 # routine that prints multiline strings at specific points on the terminal window
@@ -185,10 +242,12 @@ sub bound{
 	return $number;	
 }
 
+# allows coulur to be set
 sub colour{
 	return "" unless $display{enableColours};
-	my @formats=map {lc $_} @_;
+	my @formats=map {lc $_} split / /,shift;
 	my %colours=(black=>30,red=>31,green=>32,yellow=>33,blue=>34,magenta=>35,cyan=>36,white=>37,reset=>0,
 	             bold=>1, italic=>3, underline=>4, strikethrough=>9,);
-	return join "",map {"\033[$colours{$_}m"}@formats;
+	return join "",map {defined $colours{$_}?"\033[$colours{$_}m":""} @formats;
 }
+
