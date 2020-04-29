@@ -9,14 +9,14 @@ Ihe display can be positioned and sized as needed. The Keyboard is monitored for
 
 Things to do: -
 
-* Manual scale and offset adjustment (partly done in v0.02)
+* Manual scale and offset adjustment (done in v0.02)
 * Manual sample rate adjustment      (done in v0.02)
 * Autoscaling is already implemented (in v0.02 can now be triggered any time)
-* Drift adjustment
-* Colour 
-* Multiple independent traces 
-* Triggers and Storage modes
-* Freeze frame 
+* Drift adjustment                   (done in v0.04)
+* Colour                             (done in v0.05)
+* Multiple independent traces        (done in v0.05)
+* Triggers and Storage modes         
+* Freeze frame                       (partly done in v0.04) 
 * Export data to CSV and graphically to SVG
 * Data anaylsis
 
