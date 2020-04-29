@@ -1,5 +1,5 @@
 
-### Version 0.05
+### Version 0.06
 - Multiple traces now possible
 - Possible to individually scale and shift traces.  Tab to toggle active Trace
 - Trace names in bottom bar
