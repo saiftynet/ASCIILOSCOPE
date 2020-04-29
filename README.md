@@ -13,7 +13,7 @@ Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%tra
 ```
  cos=>{
   data           =>[(undef) x 55],
-	dataWindow     =>55,
+  dataWindow     =>55,
   internals      =>{x=>1},
   symbol         => "o",
   colour         => "green",
