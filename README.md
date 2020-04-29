@@ -30,7 +30,7 @@ Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%tra
 * `internals` are specific to the plot where the user may store the interbnal variables for the trace functions
 * `symbol` is the sympbol used forthe plot
 * `source` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied.
-May be more reasonable to put in example triangle, sawtooth, squarewave. a future trace will be the internal "trigger".
+May be more reasonable to put in example triangle, sawtooth, squarewave. a future trace will be the internal "trigger". The main purpose of this function is to capture external data for plotting.
 
 
 
