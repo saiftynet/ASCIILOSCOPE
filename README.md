@@ -5,7 +5,34 @@ The objective of this utility is to create a real time graphical monitoring of c
 
 ![Screenshot1](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/asciiloscope.gif)
 
-Ihe display can be positioned and sized as needed. The Keyboard is monitored for functions to be added as development continues
+Ihe display can be positioned and sized as needed. The Keyboard is monitored for functions to be added as development continues.
+
+### Adding traces
+Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%traces`.  Within this the traces are stored as references to hashes e.g.
+
+```
+ cos=>{
+  data           =>[(undef) x 55],
+	dataWindow     =>55,
+  internals      =>{x=>1},
+  symbol         => "o",
+  colour         => "green",
+  source         => sub{
+		shift @{$traces{cos}{data}} ;
+		$traces{cos}{internals}{x}=0 if $traces{cos}{internals}{x}>200;
+		push @{$traces{cos}{data}},cos (3.14*$traces{cos}{internals}{x}++/20)
+  },
+	
+},
+```
+* `data` is the store of collected raw data. Initially populated with `undef`, these are preloaded with datapoints to allow autoscaling and plotting.
+* `dataWindow` if the size of datastore
+* `internals` are specific to the plot where the user may store the interbnal variables for the trace functions
+* `symbol` is the sympbol used forthe plot
+* `source` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied.
+May be more reasonable to put in example triangle, sawtooth, squarewave. a future trace will be the internal "trigger".
+
+
 
 Things to do: -
 
