@@ -40,7 +40,7 @@ Things to do: -
 * Manual sample rate adjustment      (done in v0.02)
 * Autoscaling is already implemented (in v0.02 can now be triggered any time)
 * Drift adjustment                   (done in v0.04)
-* Colour                             (done in v0.05)
+* Colour                             (done in v0.05 and improved in 0.07)
 * Multiple independent traces        (done in v0.05)
 * Triggers and Storage modes         
 * Freeze frame                       (partly done in v0.04) 
