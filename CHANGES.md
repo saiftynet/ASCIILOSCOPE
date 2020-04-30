@@ -1,3 +1,12 @@
+### Version 0.07
+- Traces are individually coloured
+- Traces may be hidden individually
+- Pause/resume is toggled using 'P' (rather than using 'p' for pause and 'r' for resume)
+- Stop/go for individual traces
+- Trace names in bottom bar coloured as well
+- Bug that caused glitches if colour not specified for trace fixed
+
+![Vesion 0.06](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.06.jpg)
 
 ### Version 0.06
 - Multiple traces now possible
