@@ -1,7 +1,7 @@
 # ASCIILOSCOPE
 An oscilloscope in ASCII
 
-The objective of this utility is to create a real time graphical monitoring of changing data from a terminal. The target applications may be monitoring electrical signals.  Clearly this is not as representative as a true graphical display, but it allows a simple illustration of input changes.  For my purposes it will allow me to select multipliers and offsets adjustments for signal captures by sensors for other applications.  It is also a test bed for the development of CursesSprites and eventual PerlayStation Terminal Games Console.  The development of these have been temporarily paused while I improve my understanding of terminal applications development (I am thinking of eventually disposing of Curses altogether).  See [CHANGES](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/CHANGES.md) for updates.
+The objective of this utility is to create a real time graphical monitoring of changing data from a terminal. The target applications may be monitoring electrical signals.  Clearly this is not as representative as a true graphical display, but it allows a simple illustration of input changes.  For my purposes it will allow me to select multipliers and offsets adjustments for signal captures by sensors for other applications.  It is also a test bed for the development of CursesSprites and eventual PerlayStation Terminal Games Console.  The development of these have been temporarily paused while I improve my understanding of terminal applications development (I am thinking of eventually disposing of Curses altogether).  See [CHANGES](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/CHANGES.md) for updates. Conversion to a GUI, vector tracing appplication is projected, and may only required minor changes.
 
 ![Screenshot1](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/asciiloscope.gif)
 
@@ -9,8 +9,23 @@ Ihe display can be positioned and sized as needed. The Keyboard is monitored for
 
 ### Features and function
 This can be illustrated using the screenshot below.
-
 ![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.06.jpg)
+
+* Tab = Makes next trace active oif there are multiple traces
+* q   = Quits the application
+* p   = Pauses display and data capture
+* r   = Resumes from pause
+* a   = Auto levels, adjusts multipliers and offset so data fits in the screen
+* 🠞   = Speed up increase number of updates per second by 10
+* 🠜   = Slow down, reduce number of updates per second by 10
+* 🠉   = Shift up, increase offset so trace moves up the display
+* 🠋   = Shift down, decrease offset so trace moves down the display
+* \*    = Inc Window, increase samples per full width of the screen
+* \/    = Dec Window, decrease samples per full width of the screen
+* \+    = Magnify, increase Y multiplier by 10%, zooming into trace
+* \-    = Reduce, reduce multiplier by 10%, zooming out
+
+
 
 ### Adding traces
 Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%traces`.  Within this the traces are stored as references to hashes e.g.
