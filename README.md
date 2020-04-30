@@ -1,20 +1,20 @@
 # ASCIILOSCOPE
 An oscilloscope in ASCII
 
-The objective of this utility is to create a real time graphical monitoring of changing data from a terminal. The target applications may be monitoring electrical signals.  Clearly this is not as representative as a true graphical display, but it allows a simple illustration of input changes.  For my purposes it will allow me to select multipliers and offsets adjustments for signal captures by sensors for other applications.  It is also a test bed for the development of CursesSprites and eventual PerlayStation Terminal Games Console.  The development of these have been temporarily paused while I improve my understanding of terminal applications development (I am thinking of eventually disposing of Curses altogether).  See [CHANGES](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/CHANGES.md) for updates. Conversion to a GUI, vector tracing appplication is projected, and may only required minor changes.
+The objective of this utility is to create a real time graphical monitoring of changing data from a terminal. The target applications may be monitoring electrical signals.  Clearly this is not as representative as a true graphical display, but it allows a simple illustration of input changes.  For my purposes it will allow me to select multipliers and offsets adjustments for signal captures by sensors for other applications.  It is also a test bed for the development of CursesSprites and eventual PerlayStation Terminal Games Console.  The development of these have been temporarily paused while I improve my understanding of terminal applications development (I am thinking of eventually disposing of Curses altogether).  See [CHANGES](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/CHANGES.md) for updates. Conversion to a GUI, vector tracing appplication is projected, and may only require minor changes.
 
 ![Screenshot1](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/asciiloscope.gif)
 
-Ihe display can be positioned and sized as needed. The Keyboard is monitored for functions to be added as development continues.
+Ihe display can be positioned and sized as needed. The keyboard is monitored for functions to be added as development continues.
 
 ### Features and function
 This can be illustrated using the screenshot below.
 ![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.07.jpg)
 
-* Tab = Makes next trace active oif there are multiple traces
+* Tab = Makes next trace active if there are multiple traces
 * q   = Quits the application
 * p   = Pauses display and data capture for all traces
-* s   = Stop resume individual traces
+* s   = Stop/resume individual traces
 * r   = Resumes from pause
 * a   = Auto levels, adjusts multipliers and offset so data fits in the screen
 * &#8594;   = Speed up increase number of updates per second by 10
@@ -79,7 +79,7 @@ See [CHANGES](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/CHANGES.md) 
 * Colour                             (done in v0.05 and improved in 0.07)
 * Multiple independent traces        (done in v0.05)
 * Triggers and Storage modes         
-* Freeze frame                       (partly done in v0.04) 
+* Freeze frame                       (done in v0.07) 
 * Export data to CSV and graphically to SVG
 * Data anaylsis
 
