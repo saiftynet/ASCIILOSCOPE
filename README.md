@@ -9,7 +9,7 @@ Ihe display can be positioned and sized as needed. The Keyboard is monitored for
 
 ### Features and function
 This can be illustrated using the screenshot below.
-![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.06.jpg)
+![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.07.jpg)
 
 * Tab = Makes next trace active oif there are multiple traces
 * q   = Quits the application
