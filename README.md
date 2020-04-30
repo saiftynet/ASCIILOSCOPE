@@ -15,7 +15,7 @@ This can be illustrated using the screenshot below.
 * q   = Quits the application
 * p   = Pauses display and data capture for all traces
 * s   = Stop/resume individual traces
-* r   = Resumes from pause
+* h   = hide/show traces
 * a   = Auto levels, adjusts multipliers and offset so data fits in the screen
 * &#8594;   = Speed up increase number of updates per second by 10
 * &#8592;   = Slow down, reduce number of updates per second by 10
@@ -52,6 +52,7 @@ Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%tra
 * `symbol` is the sympbol used forthe plot
 * `source->()` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied. Typically the function would remove the oldest datapoint (using `shift`) and insert (using `push`) the newest one at the other end.
 May be more reasonable to put in example triangle, sawtooth, squarewave. a future trace will be the internal "trigger". The main purpose of this function is to capture external data for plotting.
+* `colour` is a string of formatting options separated by spaces, e.g. "bold red strikethrough"
 
 ### Options
 The display can be configured from the `$display` hash.
