@@ -13,7 +13,8 @@ This can be illustrated using the screenshot below.
 
 * Tab = Makes next trace active oif there are multiple traces
 * q   = Quits the application
-* p   = Pauses display and data capture
+* p   = Pauses display and data capture for all traces
+* s   = Stop resume individual traces
 * r   = Resumes from pause
 * a   = Auto levels, adjusts multipliers and offset so data fits in the screen
 * &#8594;   = Speed up increase number of updates per second by 10
