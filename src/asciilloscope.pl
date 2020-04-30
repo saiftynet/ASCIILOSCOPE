@@ -10,7 +10,7 @@ use Time::HiRes ("sleep");      # allow fractional sleeps
 use Term::ReadKey;              # allow reading from keyboard
 my $key;                      
 
-my $VERSION=0.06;
+my $VERSION=0.07;
 
 # display parameters stored in hash for future conversion into an
 # object orientated module 
@@ -27,26 +27,24 @@ my %display=(                  # display parameters
    showMenu   =>1,             # show menu or not
    enableColours=>1,           # enable colours
    borderStyle=>"double",      # border style
-   height    =>14,             # vertical characters
+   height    =>15,             # vertical characters
    width     =>50,             # horizontal characters
    row       =>2,              # vertical position (from top left)
-   column    =>10,             # horizontal position
+   column    =>8,             # horizontal position
    sampleRate=>100,            # number of samples per second
-   dataWindow=>55,             # number of samples in one window
-   dataStore =>110,
-   symbol    =>"*",            # plot symbol
    );
            
 %traces=(
-  trace1=>{
+  sin=>{
 	data           =>[(undef) x 55],
 	dataWindow     =>55,
     internals=>{x=>1},
     symbol   => "*",
+    colour   => "red",
     source  => sub{
-		shift @{$traces{trace1}{data}} ;
-		$traces{trace1}{internals}{x}=0 if $traces{trace1}{internals}{x}>200;
-		push @{$traces{trace1}{data}},sin (3.14*$traces{trace1}{internals}{x}++/20)
+		shift @{$traces{sin}{data}} ;
+		$traces{sin}{internals}{x}=0 if $traces{sin}{internals}{x}>200;
+		push @{$traces{sin}{data}},sin (3.14*$traces{sin}{internals}{x}++/20)
 		},
 	
   },
@@ -55,6 +53,7 @@ my %display=(                  # display parameters
 	dataWindow     =>55,
     internals=>{x=>1},
     symbol   => "o",
+    colour   => "green",
     source  => sub{
 		shift @{$traces{cos}{data}} ;
 		$traces{cos}{internals}{x}=0 if $traces{cos}{internals}{x}>200;
@@ -72,17 +71,21 @@ my %actions=(                  # for keyboard driven actions
 	   proc=>sub{$activeTrace=pop @traceNames;
 		   unshift @traceNames,$activeTrace; }
    },
+   104=>{ # h hides trace
+	   note=>"h = Hide/show",
+	   proc=>sub{$traces{$activeTrace}{hidden}=!$traces{$activeTrace}{hidden};},
+   },
    113=>{ # q exits
 	   note=>"q = Exit",
 	   proc=>sub{ printAt($display{row}+$display{height}+9,0,"Goodbye!");exit;},
    },
-   112=>{  # Freezes display (loop continues so keyboard is read)
-	   note=>"p = Freeze",
-	   proc=>sub{$display{pause}=1},
+   112=>{  # Pause display (loop continues so keyboard is read)
+	   note=>"p = Pause/Resume",
+	   proc=>sub{$display{pause}=!$display{pause}},
    },
-   114=>{  # Resume
-	   note=>"r = Resume",
-	   proc=>sub{$display{pause}=0},
+   115=>{  # stop individual trace
+	   note=>"s = Stop trace/go",
+	   proc=>sub{$traces{$activeTrace}{frozen}=!$traces{$activeTrace}{frozen}},
    },
    97 =>{  # Auto levels based on the current contents of @list
 	   note=>"a = Auto levels",
@@ -148,17 +151,17 @@ sub initialScreen{
 	}
 	unshift @plotArea,colour("blue bold").$border{tl}.($border{t}x$display{width}).$border{tr};
 	
-	my $bLine=join $border{b}x2, map {" $traces{$_}{symbol} $_ "} @traceNames;
-	$bLine=($border{b}x2).$bLine.($border{b}x($display{width}-2-length $bLine));
+	my $bLine=join $border{b}x2, map {colour($traces{$_}{colour})." $traces{$_}{symbol} $_ ".colour("blue bold")} @traceNames;
+	my $bLineLength=length stripColours($bLine);
+	$bLine=($border{b}x2).$bLine.($border{b}x($display{width}-2-$bLineLength));
     push    @plotArea,$border{bl}.$bLine.$border{br}.colour("reset");
     printAt($display{row},$display{column},@plotArea),;
-
     # Print Menu...disable by setting $display{showMenu} to zero
-    printAt( 5,$display{width}+$display{column}+3,
+    printAt( 3,$display{width}+$display{column}+3,
         map{$actions{$_}{note} } sort { $a <=> $b } keys %actions) if $display{showMenu};;
     
     # Print logo...disable by setting $display{showLogo} to zero
-    printAt($display{row}+$display{height}+3,$display{column}-7<0?0:$display{column}-7,
+    printAt($display{row}+$display{height}+2,$display{column}-2<0?0:$display{column}-2,
     colour("yellow bold").
     '   _    ___   __  _______  _    ___   ___   __   ___   ___  ___',
     '  /_\  / __| / _||_ _|_ _|| |  / _ \ / __| / _| / _ \ |  _\| __|',
@@ -166,10 +169,6 @@ sub initialScreen{
     '/_/ \_\|___/ \__||___|___||___|\___/ |___/ \__| \___/ |_|  |___|'." v$VERSION".
     colour("reset") 
     ) if $display{showLogo};
-    
-    
-		
-		
 };
 
 # uses the data in the @list to autscale the waveform for display
@@ -189,8 +188,9 @@ sub startScope{
   ReadMode 'cbreak';
   while(1){
 	unless ($display{pause}){  # unless pausing continue updatingftea
-		
-		$traces{$_}{source}->() foreach (keys %traces)
+	  foreach (keys %traces){
+		$traces{$_}{source}->() unless $traces{$_}{frozen} 
+	   }
 	};
     scatterPlot();                     # draw the trace
 	sleep 1/$display{sampleRate};      # pause
@@ -209,6 +209,7 @@ sub startScope{
 sub scatterPlot{
   my @rows=(" "x$display{width})x$display{height};
   foreach my $tr (keys %traces){
+	  next if $traces{$tr}{hidden};
 	  my @plots2=map {$traces{$tr}{data}[$_]?
 			[int( $_*$traces{$tr}{xMult}) ,
 			bound (int($traces{$tr}{yMult}*$traces{$tr}{data}[$_] +$traces{$tr}{yOffset}-.5),
@@ -220,8 +221,16 @@ sub scatterPlot{
 		}
 	}
 	my $zeroLine=bound($traces{$activeTrace}{yOffset},0,$display{height}-1);
-		  $rows[$zeroLine]=~s/ /-/g;
-		  $rows[$zeroLine]=colour("yellow bold").$rows[$zeroLine].colour("reset");
+	$rows[$zeroLine]=~s/ /-/g;
+   
+   foreach my $tr (keys %traces){
+	  next if $traces{$tr}{hidden};
+	   my $colour=colour($traces{$tr}{colour});my $reset=colour("reset");
+	   my $symbol=$traces{$tr}{symbol};
+	   foreach my $row (0..$#rows){
+		   $rows[$row]=~s/([$symbol]+)/$colour$1$reset/g;
+	   }
+   }
    # reverse rows and print as screen counts zero as top 
    printAt($display{row}+1,$display{column}+1,reverse @rows);
 };
@@ -245,9 +254,15 @@ sub bound{
 # allows coulur to be set
 sub colour{
 	return "" unless $display{enableColours};
-	my @formats=map {lc $_} split / /,shift;
+	my $fmts=shift; return "" unless $fmts; 
+	my @formats=map {lc $_} split / /,$fmts;
 	my %colours=(black=>30,red=>31,green=>32,yellow=>33,blue=>34,magenta=>35,cyan=>36,white=>37,reset=>0,
 	             bold=>1, italic=>3, underline=>4, strikethrough=>9,);
 	return join "",map {defined $colours{$_}?"\033[$colours{$_}m":""} @formats;
 }
 
+sub stripColours{
+  my $line=shift;
+  $line=~s/\033\[[^m]+m//g;
+  return $line;
+}
