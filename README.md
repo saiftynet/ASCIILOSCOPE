@@ -49,9 +49,8 @@ Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%tra
 * `data` is the store of collected raw data. Initially populated with `undef`, these are preloaded with datapoints to allow autoscaling and plotting.
 * `dataWindow` if the size of datastore
 * `internals` are specific to the plot where the user may store the interbnal variables for the trace functions
-* `symbol` is the sympbol used forthe plot
-* `source->()` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied. Typically the function would remove the oldest datapoint (using `shift`) and insert (using `push`) the newest one at the other end.
-May be more reasonable to put in example triangle, sawtooth, squarewave. a future trace will be the internal "trigger". The main purpose of this function is to capture external data for plotting.
+* `symbol` is the symbol used for the plot
+* `source->()` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied. Typically the function would remove the oldest datapoint (using `shift`) and insert (using `push`) the newest one at the other end. May be more reasonable to put in example triangle, sawtooth, square wave. A future trace will be the internal "trigger". The main purpose of this function is to capture external data for plotting.
 * `colour` is a string of formatting options separated by spaces, e.g. "bold red strikethrough"
 
 ### Options
