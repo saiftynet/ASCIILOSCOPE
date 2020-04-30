@@ -16,10 +16,10 @@ This can be illustrated using the screenshot below.
 * p   = Pauses display and data capture
 * r   = Resumes from pause
 * a   = Auto levels, adjusts multipliers and offset so data fits in the screen
-* 🠞   = Speed up increase number of updates per second by 10
-* 🠜   = Slow down, reduce number of updates per second by 10
-* 🠉   = Shift up, increase offset so trace moves up the display
-* 🠋   = Shift down, decrease offset so trace moves down the display
+* &#8594;   = Speed up increase number of updates per second by 10
+* &#8592;   = Slow down, reduce number of updates per second by 10
+* &#8593;   = Shift up, increase offset so trace moves up the display
+* &#8595;   = Shift down, decrease offset so trace moves down the display
 * \*    = Inc Window, increase samples per full width of the screen
 * \/    = Dec Window, decrease samples per full width of the screen
 * \+    = Magnify, increase Y multiplier by 10%, zooming into trace
