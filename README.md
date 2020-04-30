@@ -10,7 +10,7 @@ Ihe display can be positioned and sized as needed. The Keyboard is monitored for
 ### Features and function
 This can be illustrated using the screenshot below.
 
-![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version06.jpg)
+![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.06.jpg)
 
 ### Adding traces
 Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%traces`.  Within this the traces are stored as references to hashes e.g.
