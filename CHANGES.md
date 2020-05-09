@@ -1,3 +1,14 @@
+### Version 0.09
+- A virtually complete rewrite into a more object orientated design. Packages are however 
+contained within the script as opposed to being loaded from external files, for convenience.
+- Logo at bottom now replaced by a Logo scrolling in from the side at the beginning
+- Traces are now loadable from external files
+- Trace Windows can have titles appended
+- Multiple Asciiloscope screens are possible
+
+![Vesion 0.09](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.09.jpg)
+
+
 ### Version 0.07
 - Traces are individually coloured
 - Traces may be hidden individually
@@ -6,7 +17,7 @@
 - Trace names in bottom bar coloured as well
 - Bug that caused glitches if colour not specified for trace fixed
 
-![Vesion 0.06](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.07.jpg)
+![Vesion 0.07](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.07.jpg)
 
 ### Version 0.06
 - Multiple traces now possible
