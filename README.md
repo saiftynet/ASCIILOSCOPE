@@ -9,7 +9,7 @@ Ihe display can be positioned and sized as needed. The keyboard is monitored for
 
 ### Features and function
 This can be illustrated using the screenshot below.
-![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.07.jpg)
+![Screenshot2](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.09.jpg)
 
 * Tab = Makes next trace active if there are multiple traces
 * q   = Quits the application
@@ -26,48 +26,55 @@ This can be illustrated using the screenshot below.
 * \+    = Magnify, increase Y multiplier by 10%, zooming into trace
 * \-    = Reduce, reduce multiplier by 10%, zooming out
 
-
-
 ### Adding traces
-Traces are currently (from v 0.06) stored in a hash called, unsurpisingly, `%traces`.  Within this the traces are stored as references to hashes e.g.
+Traces were previously (from v 0.06) stored in a hash called, unsurpisingly, `%traces`.  From v 0.09, they can be created within the script, or preferably loaded from a external `.trc` (extension is suggested, not required). Files are structured like the conetents of a hash.
 
 ```
- cos=>{
-  data           =>[(undef) x 55],
-  dataWindow     =>55,
-  internals      =>{x=>1},
-  symbol         => "o",
-  colour         => "green",
-  source         => sub{
-		shift @{$traces{cos}{data}} ;
-		$traces{cos}{internals}{x}=0 if $traces{cos}{internals}{x}>200;
-		push @{$traces{cos}{data}},cos (3.14*$traces{cos}{internals}{x}++/20)
-  },
-	
-},
+description   =>"Sine Trace",
+name          =>"sin",
+dataWindow    =>50,
+internals     =>{x=>1},
+symbol        => "*",
+colour        => "red bold",
+source        => sub{
+                 my $self=shift;
+		         shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
+		         $self->{internals}{x}=0 if $self->{internals}{x}>200;
+		         push @{$self->{data}},sin (3.14*$self->{internals}{x}++/20);
+		      },
 ```
-* `data` is the store of collected raw data. Initially populated with `undef`, these are preloaded with datapoints to allow autoscaling and plotting.
-* `dataWindow` if the size of datastore
-* `internals` are specific to the plot where the user may store the interbnal variables for the trace functions
+* `desription` is a user friendly description of the function
+* `name` is the name of the trace and needsto be unique
+* `dataWindow` is the number of data points displayed in each frame
+* `internals` are specific to the plot where the user may store the internal variables for the trace functions
 * `symbol` is the symbol used for the plot
 * `source->()` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied. Typically the function would remove the oldest datapoint (using `shift`) and insert (using `push`) the newest one at the other end. May be more reasonable to put in example triangle, sawtooth, square wave. A future trace will be the internal "trigger". The main purpose of this function is to capture external data for plotting.
 * `colour` is a string of formatting options separated by spaces, e.g. "bold red strikethrough"
 
 ### Options
-The display can be configured from the `$display` hash.
+The display from version 0.09 onwards, the display setu up by creating a Display object.
 ```
-my %display=(                  # display parameters
-   showLogo   =>1,             # show logo or not
+my $display=new Display(       # display parameters
+   showLogo   =>1,             # show scrolling logo or not
    showMenu   =>1,             # show menu or not
    enableColours=>1,           # enable colours
-   borderStyle=>"double",      # border style
-   height    =>14,             # vertical characters
-   width     =>50,             # horizontal characters
-   row       =>2,              # vertical position (from top left)
-   column    =>10,             # horizontal position
-   sampleRate=>100,            # number of samples per second
-   );
+   refreshRate =>100,
+);
 ```
+### Creating a Trace Widget
+It shoudld be possible to create multiple trace widgets. Widgets are given ids, and updated depdendent on `$display->{refreshRate}`.
+
+```
+# create a chart widget containing traces, and then "run" the scope
+$display->chart({id=>"scope",row=>4,column=>8,height=>17,width=>50,
+	            borderStyle=>"double",borderColour=>"bold blue",
+	            title=>"ASCIIloscope Demo",titleColour=>"black on_yellow",
+	            traces=>[@traces]});
+$display->run("scope");
+```
+
+`$display->(<widgetId>)` starts a loop that redraws the contents of the widget
+
 ###  Dependencies
 * Time::HiRes
 * Term::ReadKey;  
@@ -86,5 +93,6 @@ See [CHANGES](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/CHANGES.md) 
 * Freeze frame                       (done in v0.07) 
 * Export data to CSV and graphically to SVG
 * Data anaylsis
+* OO redesign                        (done in 0.09)
 
 
