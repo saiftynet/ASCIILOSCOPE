@@ -73,7 +73,7 @@ $display->chart({id=>"scope",row=>4,column=>8,height=>17,width=>50,
 $display->run("scope");
 ```
 
-`$display->(<widgetId>)` starts a loop that redraws the contents of the widget
+`$display->run(<widgetId list>)` starts a loop that redraws the contents of the widgets listed by their ids.
 
 ###  Dependencies
 * Time::HiRes
