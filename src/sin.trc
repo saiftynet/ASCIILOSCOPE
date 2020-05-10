@@ -1,0 +1,13 @@
+description   =>"Sine Trace",
+name          =>"sin",
+dataWindow    =>50,
+internals     =>{x=>1},
+symbol        => "*",
+colour        => "red bold",
+source        => sub{
+                 my $self=shift;
+		         shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
+		         $self->{internals}{x}=0 if $self->{internals}{x}>200;
+		         push @{$self->{data}},sin (3.14*$self->{internals}{x}++/20);
+		      },
+
