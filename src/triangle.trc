@@ -1,0 +1,15 @@
+description   =>"Triangle",
+name          =>"triangle",
+dataWindow    =>50,
+internals     =>{x=>1,y=>0, up=>.1},
+symbol        => "@",
+colour        => "blue bold",
+source        => sub{
+                 my $self=shift;
+		         shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
+		         $self->{internals}{x}=0 if $self->{internals}{x}>200;
+		         push @{$self->{data}},$self->{internals}{y}+=$self->{internals}{up};
+		         $self->{internals}{up}=-$self->{internals}{up}
+		                   if $self->{internals}{y}>=1 or $self->{internals}{y}<=-1 ;
+		      },
+
