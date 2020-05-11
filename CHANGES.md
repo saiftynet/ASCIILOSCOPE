@@ -8,6 +8,7 @@ contained within the script as opposed to being loaded from external files, for 
 
 ![Vesion 0.09](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.09.jpg)
 
+![Vesion 0.09](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/asciiloscope%20dual%20trace.gif)
 
 ### Version 0.07
 - Traces are individually coloured
