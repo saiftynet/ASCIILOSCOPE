@@ -27,9 +27,11 @@ This can be illustrated using the screenshot below.
 * \-    = Reduce, reduce multiplier by 10%, zooming out
 
 ### Adding traces
-Traces were previously (from v 0.06) stored in a hash called, unsurpisingly, `%traces`.  From v 0.09, they can be created within the script, or preferably loaded from a external `.trc` (extension is suggested, not required). Files are structured like the conetents of a hash.
+
+Traces can be loaded from an external file by `my $trace= new Trace(traceFile=>"arduino.trc") `. Files are structured like the contents of a hash.
 
 ```
+# Example contents of a .trc file
 description   =>"Sine Trace",
 name          =>"sin",
 dataWindow    =>50,
@@ -53,6 +55,7 @@ source        => sub{
 
 Alternatively the parameters can be passed to `new Trace` e.g. the following example reads the trace from a file containing data. This trace is also icluded in the src folder in file.trc format.. 
 ```
+# Example trace that reads data from a file
 $traces{file}=new Trace(
   description   =>"File Reader",
   name          =>"file",
@@ -71,7 +74,6 @@ $traces{file}=new Trace(
 );
 ```
 
-
 ### Options
 The display from version 0.09 onwards, the display setu up by creating a Display object.
 ```
@@ -83,7 +85,9 @@ my $display=new Display(       # display parameters
 );
 ```
 ### Creating a Trace Widget
-It shoudld be possible to create multiple trace widgets. Widgets are given ids, and updated depdendent on `$display->{refreshRate}`.
+
+
+ Widgets are given ids, and updated depdendent on `$display->{refreshRate}`.  Multiple traces can be displayed in a widget.
 
 ```
 # create a chart widget containing traces, and then "run" the scope
@@ -94,7 +98,37 @@ $display->chart({id=>"scope",row=>4,column=>8,height=>17,width=>50,
 $display->run("scope");
 ```
 
-`$display->run(<widgetId list>)` starts a loop that redraws the contents of the widgets listed by their ids.
+It is also possible to create multiple chart widgets. `$display->run(<widgetId list>)`  starts a loop that redraws the contents of the widgets listed by their ids.
+
+
+## Charting from sensors
+
+The goal of this project had been to produce low dependency visual representation of data acquied from sensors. The arduino.trc  file example allows data to be read from an Arduino to be read into the Asciiloscope.
+```
+ description   =>"Arduino Reader",
+ name          =>"arduino",
+ dataWindow    =>50,
+ internals     =>{ init=>my $dummy=eval {use Device::SerialPort::Arduino},
+                 },
+ symbol        => "*",
+ colour        => "yellow bold",
+ source        => sub{
+                  my $self=shift;
+                  unless(defined $self->{internals}{device}){
+                     $self->{internals}{device}=Device::SerialPort::Arduino->new(
+                     port     => '/dev/ttyUSB0',
+                     baudrate => 9600,
+                     databits => 8,
+                     parity   => 'none',
+                     )
+                   };
+                  shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
+                  my $in=$self->{internals}{device}->receive();
+                  if ($in !~/\d/){$in=150+400*rand()};
+                  push @{$self->{data}},$in-300;
+           },
+```
+
 
 ###  Dependencies
 * Time::HiRes
