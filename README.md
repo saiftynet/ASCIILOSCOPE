@@ -49,7 +49,28 @@ source        => sub{
 * `internals` are specific to the plot where the user may store the internal variables for the trace functions
 * `symbol` is the symbol used for the plot
 * `source->()` is the function that retrieves the next data point. For illustration examples of sin and cos traces are supplied. Typically the function would remove the oldest datapoint (using `shift`) and insert (using `push`) the newest one at the other end. May be more reasonable to put in example triangle, sawtooth, square wave. A future trace will be the internal "trigger". The main purpose of this function is to capture external data for plotting.
-* `colour` is a string of formatting options separated by spaces, e.g. "bold red strikethrough"
+* `colour` is a string of formatting options separated by spaces, e.g. "bold red strikethrough".
+
+Alternatively the parameters can be passed to `new Trace` e.g. the following example reads the trace from a file containing data. This trace is also icluded in the src folder in file.trc format.. 
+```
+$traces{file}=new Trace(
+  description   =>"File Reader",
+  name          =>"file",
+  dataWindow    =>50,
+  internals     =>{fileName=>"test.data",},
+  symbol        => "*",
+  colour        => "magenta bold",
+  source        => sub{
+     my $self=shift;
+     open ($self->{internals}{fh},'<', $self->{internals}{fileName}) unless exists $self->{internals}{fh};
+     shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
+     my $in=readline($self->{internals}{fh});
+     push @{$self->{data}},$in;
+     close $self->{internals}{fh} and delete $self->{internals}{fh} if eof($self->{internals}{fh})
+   },
+);
+```
+
 
 ### Options
 The display from version 0.09 onwards, the display setu up by creating a Display object.
