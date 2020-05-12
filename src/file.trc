@@ -1,0 +1,15 @@
+	description   =>"File Reader",
+	name          =>"file",
+	dataWindow    =>50,
+	internals     =>{fileName=>"ecg.data",},
+	symbol        => "*",
+	colour        => "magenta bold",
+	source        => sub{
+					 my $self=shift;
+					 open ($self->{internals}{fh},'<', $self->{internals}{fileName}) unless exists $self->{internals}{fh};
+					 shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
+					 my $in=readline($self->{internals}{fh});
+					 push @{$self->{data}},$in;
+					 close $self->{internals}{fh} and delete $self->{internals}{fh} if eof($self->{internals}{fh})
+				  },
+
