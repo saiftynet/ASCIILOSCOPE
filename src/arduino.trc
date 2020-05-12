@@ -1,22 +1,22 @@
-	description   =>"Arduino Reader",
-	name          =>"arduino",
-	dataWindow    =>50,
-	internals     =>{ init=>my $dummy=eval {use Device::SerialPort::Arduino},
-		            },
-	symbol        => "*",
-	colour        => "yellow bold",
-	source        => sub{
-					 my $self=shift;
-					 unless(defined $self->{internals}{device}){
-						 $self->{internals}{device}=Device::SerialPort::Arduino->new(
-                         port     => '/dev/ttyUSB0',
-                         baudrate => 9600,
-                         databits => 8,
-                         parity   => 'none',
+ description   =>"Arduino Reader",
+ name          =>"arduino",
+ dataWindow    =>50,
+ internals     =>{ init=>my $dummy=eval {use Device::SerialPort::Arduino},
+                },
+ symbol        => "*",
+ colour        => "yellow bold",
+ source        => sub{
+                       my $self=shift;
+                       unless(defined $self->{internals}{device}){
+                         $self->{internals}{device}=Device::SerialPort::Arduino->new(
+                           port     => '/dev/ttyUSB0',
+                           baudrate => 9600,
+                           databits => 8,
+                           parity   => 'none',
                         )
                      };
-					 shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
-					 my $in=$self->{internals}{device}->receive();
-					 if ($in !~/\d/){$in=150+400*rand()};
-					 push @{$self->{data}},$in-300;
-				  },
+                     shift @{$self->{data}} if @{$self->{data}}>$self->{dataWindow};
+                     my $in=$self->{internals}{device}->receive();
+                     if ($in !~/\d/){$in=150+400*rand()};
+                     push @{$self->{data}},$in-300;
+              },
