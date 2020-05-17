@@ -86,8 +86,7 @@ my $display=new Display(       # display parameters
 ```
 ### Creating a Trace Widget
 
-
- Widgets are given ids, and updated depdendent on `$display->{refreshRate}`.  Multiple traces can be displayed in a widget.
+Widgets are given ids, and updated depdendent on `$display->{refreshRate}`.  Multiple traces can be displayed in a widget.
 
 ```
 # create a chart widget containing traces, and then "run" the scope
@@ -100,6 +99,12 @@ $display->run("scope");
 
 It is also possible to create multiple chart widgets. `$display->run(<widgetId list>)`  starts a loop that redraws the contents of the widgets listed by their ids.
 
+A trace can also be added after a chart widget has been created. using $display->addTrace(<trace>,<widgetId>)
+	
+```
+# add trace to existing 
+$display->addTrace( new Trace(traceFile=>"ramp.trc") ,"scope");   
+```
 
 ## Charting from sensors
 
@@ -129,6 +134,19 @@ The goal of this project had been to produce low dependency visual representatio
            },
 ```
 
+
+### Customisation
+
+It is possible to customise the keyboard actions, either to replace existing actions, create new key actions, or to add functionailty to current action. Each key press is detected and the number corresponding to the key press is used to access  the action (stored in %actions hash in the package Display). `addAction` takes a key number and a hashref.  Hashref Keys are `note` for the note that appears on the menu, `proc` for the subroutine that is run when the key press is detected, and an optional `userProc` for user-defined actions. e.g.
+
+```
+# add/ modify action to a key press..tabs previously just changed activeTrace
+# now it also updates the statBox
+$display->addAction(9,{userProc=>sub{
+     $display->statBox("stat");
+  }
+});   
+```
 
 ###  Dependencies
 * Time::HiRes
