@@ -1,4 +1,12 @@
+### Version 0.10
+- A Data analysis widget has been implementated
+- Traces can be now loaded into an existing widget 
+- The key-press actions can be modified from within main:: by using $display->addAction(<$OrdKey>,<subroutine ref>))
+  
+![Vesion 0.10](https://github.com/saiftynet/ASCIILOSCOPE/blob/master/images/Version%200.10.jpg)
+
 ### Version 0.09
+  
 - A virtually complete rewrite into a more object orientated design. Packages are however 
 contained within the script as opposed to being loaded from external files, for convenience.
 - Logo at bottom now replaced by a Logo scrolling in from the side at the beginning
