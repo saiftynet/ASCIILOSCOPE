@@ -208,19 +208,19 @@ our %actions=(                  # for keyboard driven actions
      proc=>sub{my ($self,$tr)=@_;$self->{traces}{$activeTrace}->autoLevels()},
    },
    67 =>{  # increase sample rate by 10
-     note=>"🠞 = Speed up",
+     note=>"→ = Speed up",
      proc=>sub{my ($self,$tr)=@_;$self->{refreshRate}+=10;},
    },
    68 =>{  # reduce sample rate by 10
-     note=>"🠜 = Slow down",
+     note=>"← = Slow down",
      proc=>sub{my ($self,$tr)=@_;$self->{refreshRate}=$self->{refreshRate}>10?$self->{refreshRate}-10:10;},
    },
    65 =>{  # shift display up by 1
-     note=>"🠉 = Shift up",
+     note=>"↑ = Shift up",
      proc=>sub{my ($self,$tr)=@_;$self->{traces}{$activeTrace}{yOffset}+=1;},
    },
    66 =>{ # shift display down by 1
-     note=>"🠋 = Shift down",
+     note=>"↓ = Shift down",
      proc=>sub{my ($self,$tr)=@_;$self->{traces}{$activeTrace}{yOffset}-=1;},
    },   
    42 =>{ # increase samples per full width0..(@{$currentTrace{data}}
